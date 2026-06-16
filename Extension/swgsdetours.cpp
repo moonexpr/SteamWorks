@@ -18,6 +18,13 @@
 
 #include "swgsdetours.h"
 
+// SourceMod 1.12's CDetour kept the CreateDetour(void* address) overload but
+// dropped the DETOUR_CREATE_STATIC_FIXED convenience macro. Re-provide it so the
+// fixed-address detours below keep building against modern SourceMod.
+#ifndef DETOUR_CREATE_STATIC_FIXED
+#define DETOUR_CREATE_STATIC_FIXED(name, address) CDetourManager::CreateDetour(GET_STATIC_CALLBACK(name), GET_STATIC_TRAMPOLINE(name), address);
+#endif
+
 DETOUR_DECL_STATIC0(SteamAPIShutdown, void)
 {
 	if (g_SteamWorks.pSWGameServer != NULL)

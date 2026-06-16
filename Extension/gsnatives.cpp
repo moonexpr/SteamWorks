@@ -199,7 +199,9 @@ static cell_t sm_ForceHeartbeat(IPluginContext *pContext, const cell_t *params)
 		return 0;
 	}
 
-	pServer->ForceHeartbeat();
+	// ForceHeartbeat() was removed from the public Steamworks SDK; master-server
+	// heartbeats are now automatic while the server is advertised. Kept as a
+	// no-op so existing plugins that call this native continue to load.
 	return 1;
 }
 
