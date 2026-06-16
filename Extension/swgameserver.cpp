@@ -18,6 +18,34 @@
 
 #include "swgameserver.h"
 
+#if defined POSIX
+#include <dlfcn.h>
+#include <link.h>
+#include <string>
+#include <cstring>
+
+// Find the on-disk path of an already-loaded shared object by matching a
+// fragment of its name against the dynamic linker's loaded-object list. This
+// works regardless of architecture / install layout, so the Steam API library
+// is located correctly on both 32-bit and 64-bit servers; the historical
+// hardcoded "./bin/libsteam_api.so" is the 32-bit path only and does not exist
+// on a 64-bit srcds. (Runtime-discovery approach from bottiger1, #38.)
+static std::string GetLoadedLibraryPath(const char *libname)
+{
+	struct search_t { const char *name; std::string path; } data{ libname, "" };
+	dl_iterate_phdr([](struct dl_phdr_info *info, size_t, void *p) -> int {
+		search_t *d = static_cast<search_t *>(p);
+		if (info->dlpi_name && std::strstr(info->dlpi_name, d->name))
+		{
+			d->path = info->dlpi_name;
+			return 1; // stop iteration
+		}
+		return 0;
+	}, &data);
+	return data.path;
+}
+#endif
+
 static void GetGameSpecificConfigInterface(const char *pName, const char *&pVersion)
 {
 	if (g_SteamWorks.pSWGameData == NULL)
@@ -237,7 +265,8 @@ const char *SteamWorksGameServer::GetLibraryPath(void)
 	if (pLibSteamPath == NULL)
 	{
 #if defined POSIX
-		pLibSteamPath = "./bin/libsteam_api.so";
+		static std::string sLibSteamPath = GetLoadedLibraryPath("libsteam_api.so");
+		pLibSteamPath = sLibSteamPath.empty() ? "./bin/libsteam_api.so" : sLibSteamPath.c_str();
 #elif defined WIN32_LEAN_AND_MEAN
 		pLibSteamPath = "./bin/steam_api.dll"; /* Naming from SteamTools. */
 #endif
