@@ -217,7 +217,7 @@ class SteamWorksConfig(object):
 
       if have_gcc:
         cxx.cflags += ['-mfpmath=sse']
-    elif cxx.vendor == 'msvc':
+    elif cxx.like('msvc'):
       if builder.options.debug == '1':
         cxx.cflags += ['/MTd']
         cxx.linkflags += ['/NODEFAULTLIB:libcmt']
@@ -272,16 +272,16 @@ class SteamWorksConfig(object):
           cxx.cflags += ['/d2Zi+']
 
     # This needs to be after our optimization flags which could otherwise disable it.
-    if cxx.vendor == 'msvc':
+    if cxx.like('msvc'):
       # Don't omit the frame pointer.
       cxx.cflags += ['/Oy-']
 
     # Platform-specifics
     if cxx.target.platform == 'linux':
       cxx.defines += ['_LINUX', 'POSIX']
-      if cxx.vendor == 'gcc':
+      if cxx.family == 'gcc':
         cxx.linkflags += ['-static-libgcc']
-      elif cxx.vendor == 'clang':
+      elif cxx.family == 'clang':
         cxx.linkflags += ['-lgcc_eh']
     elif cxx.target.platform == 'mac':
       cxx.defines += ['OSX', '_OSX', 'POSIX']
