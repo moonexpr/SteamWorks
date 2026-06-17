@@ -31,7 +31,7 @@ run.options.add_argument('--enable-debug', action='store_const', const='1', dest
                        help='Enable debugging symbols')
 run.options.add_argument('--enable-optimize', action='store_const', const='1', dest='opt',
                        help='Enable optimization')
-run.options.add_argument('-s', '--sdks', default='all', dest='sdks',
+run.options.add_argument('-s', '--sdks', default='present', dest='sdks',
                        help='Build against specified SDKs; valid args are "all", "present", or '
                             'comma-delimited list of engine names')
 run.options.add_argument('--targets', type=str, dest='targets', default=None,
