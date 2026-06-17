@@ -236,6 +236,7 @@ class SteamWorksConfig(object):
         '/EHsc',
         '/GR-',
         '/TP',
+        '/std:c++17',
       ]
       cxx.linkflags += [
         '/SUBSYSTEM:WINDOWS',
